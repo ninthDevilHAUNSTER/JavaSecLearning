@@ -1,4 +1,4 @@
-package java_basic;
+package java_reflection;
 
 import java.io.*;
 import java.nio.file.Path;

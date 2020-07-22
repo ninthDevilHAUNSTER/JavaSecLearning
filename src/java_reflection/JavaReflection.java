@@ -1,4 +1,4 @@
-package java_basic;
+package java_reflection;
 
 
 //import org.apache.log4j.Logger;
@@ -6,13 +6,10 @@ package java_basic;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
 
 public class JavaReflection {

@@ -1,4 +1,4 @@
-import java_basic.JavaReflection;
+import java_reflection.JavaReflection;
 
 public class Main {
     public static void main(String[] args) throws Exception {
