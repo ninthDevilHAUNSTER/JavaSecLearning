@@ -232,7 +232,7 @@ public class JavaLocalCmdExec {
 
             System.out.println(Modifier.toString(getInputStream.getModifiers()));
             System.out.println(getInputStream.canAccess(obj1));
-//            getInputStream.setAccessible(true);
+            getInputStream.setAccessible(true);
             Object obj2 = getInputStream.invoke(obj1);
             System.out.println(IOUtils.toString((InputStream) obj2, "GBK"));
         } catch (Exception e) {
