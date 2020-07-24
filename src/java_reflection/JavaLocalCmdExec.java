@@ -132,10 +132,6 @@ public class JavaLocalCmdExec {
 
             // load命令执行类
             Class<?> commandClass = loader.loadClass("jni_sec.CommandExecution");
-
-            // 可以用System.load也加载lib也可以用反射ClassLoader加载,如果loadLibrary0
-            // 也被拦截了可以换java.lang.ClassLoader$NativeLibrary类的load方法。
-//            System.load("/Users/yz/IdeaProjects/javaweb-sec/javaweb-sec-source/javase/src/main/java/com/anbai/sec/cmd/libcmd.jnilib/libcmd.jnilib");
             Method loadLibrary0Method = ClassLoader.class.getDeclaredMethod("loadLibrary0", Class.class, File.class);
             loadLibrary0Method.setAccessible(true);
             loadLibrary0Method.invoke(loader, commandClass, libPath);
@@ -182,7 +178,6 @@ public class JavaLocalCmdExec {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -201,6 +196,17 @@ public class JavaLocalCmdExec {
      */
     public static void execCommandRuntime() throws IOException {
         System.out.println(IOUtils.toString(Runtime.getRuntime().exec("cmd /c dir").getInputStream(), "GBK"));
+    }
+
+    /**
+     * 查看Runtime的调用链
+     */
+    public static void execRuntimeStackTrack() {
+        try {
+            Runtime.getRuntime().exec("asfd");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -226,13 +232,9 @@ public class JavaLocalCmdExec {
             // 获取 .exec 方法
             Method exec = evil_class.getMethod(new String(new byte[]{101, 120, 101, 99}), String.class);
             // 执行 Runtime().getRuntime().exec() 方法 该方法是动态方法，第一个为类名 Runtime()类，第二个参数为字符串
-//            Object obj1 = exec.invoke(obj0, new Object[]{cmd}); 简写
             Object obj1 = exec.invoke(obj0, cmd);
             // 获取 .getInputStream 方法，
             Method getInputStream = obj1.getClass().getMethod(new String(new byte[]{103, 101, 116, 73, 110, 112, 117, 116, 83, 116, 114, 101, 97, 109}));
-
-            System.out.println(Modifier.toString(getInputStream.getModifiers()));
-            System.out.println(getInputStream.canAccess(obj1));
             getInputStream.setAccessible(true);
             Object obj2 = getInputStream.invoke(obj1);
             System.out.println(IOUtils.toString((InputStream) obj2, "GBK"));
@@ -242,6 +244,7 @@ public class JavaLocalCmdExec {
     }
 
     public static void main(String[] args) throws Exception {
-        execCommandJNIBase64();
+//        execCommandJNIBase64();
+        execCommandJNIFile();
     }
 }

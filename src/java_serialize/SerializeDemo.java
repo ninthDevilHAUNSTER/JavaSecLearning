@@ -38,7 +38,6 @@ public class SerializeDemo {
      * 使用ObjectInputStream类的readObject方法反序列化DeserializationTest类。
      */
     public static void ObjectSerializeAndDeserializeWithStream() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {
             // 创建DeserializationTest类，并类设置属性值
@@ -46,8 +45,7 @@ public class SerializeDemo {
             t.setName("yz");
             t.setAddress("admin@javaweb.org");
             t.setNumber(1231231);
-
-
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             // 创建Java对象序列化输出流对象
             ObjectOutputStream out = new ObjectOutputStream(baos);
 
@@ -67,6 +65,8 @@ public class SerializeDemo {
 
             // 反序列化输入流数据为DeserializationTest对象
             Employee test = (Employee) in.readObject();
+            System.out.println("Employee 类本身的样子:" + test.toString());
+
 
             // 关闭ObjectInputStream输入流
             in.close();
