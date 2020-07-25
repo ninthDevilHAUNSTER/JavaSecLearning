@@ -35,8 +35,8 @@ public class HelpFunctions {
     /**
      * hex转byte数组
      *
-     * @param hex
-     * @return
+     * @param hex 1
+     * @return byte[]
      */
     public static byte[] hexStringToByte(String hex) {
         int m = 0, n = 0;
@@ -55,7 +55,7 @@ public class HelpFunctions {
      * byte数组转hex
      *
      * @param bytes byte[]
-     * @return
+     * @return byte[]
      */
     public static String byteToHexString(byte[] bytes) {
         String strHex = "";

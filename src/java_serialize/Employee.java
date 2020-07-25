@@ -20,23 +20,24 @@ import java.io.ObjectOutputStream;
  * <p>
  * 在序列化与反序列化的过程中，往往会用到 ObjectInputStream 和 ObjectOutputStream 中的 readObj与writeObj方法。
  * 这两个Stream均继承自java.io.ObjectStreamClass，该方法继承了 Serializable 的接口
- * 在 java.io.ObjectStreamClass#ObjectStreamClass(java.lang.Class<?>):532/535行中有着这两行代码
+ * 在 java.io.ObjectStreamClass#ObjectStreamClass(java.lang.Class):532/535行中有着这两行代码
  * <p>
  * writeObjectMethod = getPrivateMethod(cl, "writeObject",
- * new Class<?>[] { ObjectOutputStream.class },
+ * new Class[] { ObjectOutputStream.class },
  * Void.TYPE);
  * 虽然我涉世未深，但是也能猜得出，这是在动态获取writeObject这两个方法，并且是Private的
  * <p>
  * 继续跟入，可以发现，总共需要扩展这五个方法
  *
- * <ui>
- * <li>private void writeObject 自定义序列化。</li>
- * <li>private void readObject  自定义反序列化。</li>
- * <li>private void readObjectNoData 空数据的反序列化</li>
- * <li>~static|~abstract Object writeReplace 写入时替换对象</li>
- * <li>~static|~abstract Object readResolve  读出时替换对象</li>
- * </ui>
+ *
+ * private void writeObject 自定义序列化。
+ * private void readObject  自定义反序列化。
+ * private void readObjectNoData 空数据的反序列化
+ * ~static|~abstract Object writeReplace 写入时替换对象
+ * ~static|~abstract Object readResolve  读出时替换对象
+ *
  */
+
 class Employee implements java.io.Serializable {
     public String name;
     public String address;
@@ -97,11 +98,9 @@ class Employee implements java.io.Serializable {
      */
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         System.out.println("readObject...");
-
         // 调用ObjectInputStream默认反序列化方法
         ois.defaultReadObject();
         // 省去调用自定义反序列化逻辑...
-
     }
 
     /**

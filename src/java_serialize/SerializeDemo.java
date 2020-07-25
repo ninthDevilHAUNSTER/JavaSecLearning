@@ -4,6 +4,8 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 
 import sun.reflect.ReflectionFactory;
@@ -14,7 +16,10 @@ public class SerializeDemo {
     private static final Path ser_path = Paths.get("D://tmp", "employee.ser");
     private static final Path ser_null_path = Paths.get("D://tmp", "employee_null.ser");
     private static final byte[] EMPLOYEE_SERIALIZED_BINARY = new byte[]{
-            -84, -19, 0, 5, 115, 114, 0,//header
+            // writeStreamHeader()
+            -84, -19, //  STREAM_MAGIC = (short)0xaced;
+            0, 5, 115, 114, 0, //  STREAM_VERSION = 5;
+
             23, //  "java_serialize.Employee".length()
             106, 97, 118, 97, 95, 115, 101, 114, 105, 97, 108, 105, 122, 101, 46, 69, 109, 112, 108, 111, 121, 101, // "java_serialize.Employee".getBytes()
             101, 67, -41, -100, 39, -114, -83, -54, -50, 2, 0, 3, 73, 0, 6, 110, 117,
@@ -164,5 +169,8 @@ public class SerializeDemo {
 //        System.out.println(Arrays.toString(HelpFunctions.readFileReturnBytes(ser_null_path)));
 //        deserializeWithOutCallConstructor();
         ObjectSerializeAndDeserializeWithStream();
+
     }
 }
+
+

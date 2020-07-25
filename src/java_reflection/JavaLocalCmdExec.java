@@ -72,7 +72,6 @@ public class JavaLocalCmdExec {
     /**
      * 利用JNI文件，调用动态链接库来执行结果
      *
-     * @throws Exception
      */
     public static void execCommandJNIBase64() {
         String cmd = "whoami";// 定于需要执行的cmd
@@ -110,7 +109,6 @@ public class JavaLocalCmdExec {
     /**
      * 利用JNI文件，调用动态链接库来执行结果
      *
-     * @throws Exception
      */
     public static void execCommandJNIFile() {
         String cmd = "whoami";// 定于需要执行的cmd
